@@ -227,7 +227,7 @@ export function renderHtmlReport(result: AnalysisResult): string {
         </span>
       </div>
       <div style="font-size: 12px; color: var(--text-muted);">
-        Report Generated: ${new Date().toLocaleTimeString()}
+        Report Generated: ${new Date().toISOString().replace("T", " ").substring(0, 19)} UTC
       </div>
     </header>
 

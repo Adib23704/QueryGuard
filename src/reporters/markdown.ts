@@ -12,8 +12,10 @@ export function renderMarkdownReport(result: AnalysisResult): string {
       ? "✅ **All checks passed**"
       : "⚠️ **Performance regressions detected**";
 
+  const generatedAt = `${new Date().toISOString().replace("T", " ").substring(0, 19)} UTC`;
+
   lines.push(
-    `> **Status:** ${statusBadge} | **Total Captured Queries:** ${summary.totalQueries} | **Wasted Latency:** ~${summary.wastedDurationMs.toFixed(1)} ms`,
+    `> **Status:** ${statusBadge} | **Total Captured Queries:** ${summary.totalQueries} | **Wasted Latency:** ~${summary.wastedDurationMs.toFixed(1)} ms  \n> **Report Generated:** \`${generatedAt}\``,
   );
   lines.push("");
 

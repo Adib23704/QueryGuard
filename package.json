@@ -1,6 +1,6 @@
 {
   "name": "queryguard",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Zero-config PostgreSQL wire-protocol proxy, N+1 query cascade detector, and automated index advisor",
   "type": "module",
   "license": "MIT",

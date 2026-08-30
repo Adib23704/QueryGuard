@@ -1,4 +1,7 @@
 export * from "./analyzer/index.js";
+export * from "./cli/analyze.js";
+export * from "./cli/exec.js";
+export * from "./cli/index.js";
 export * from "./proxy/connection.js";
 export * from "./proxy/parser.js";
 export * from "./proxy/server.js";

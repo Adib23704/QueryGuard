@@ -20,6 +20,7 @@ export class WireParser {
 
   private clientBuffer = Buffer.alloc(0);
   private serverBuffer = Buffer.alloc(0);
+  private isStartupDone = false;
 
   private preparedStatements = new Map<string, PreparedStatement>();
   private portals = new Map<string, Portal>();
@@ -42,9 +43,26 @@ export class WireParser {
   public handleClientData(chunk: Buffer): void {
     this.clientBuffer = Buffer.concat([this.clientBuffer, chunk]);
 
-    if (this.clientBuffer.length >= 8 && WireParser.isSslRequest(this.clientBuffer)) {
-      this.clientBuffer = this.clientBuffer.subarray(8);
-      return;
+    if (!this.isStartupDone) {
+      if (this.clientBuffer.length < 8) return;
+
+      const len = this.clientBuffer.readInt32BE(0);
+      const code = this.clientBuffer.readInt32BE(4);
+
+      if (len === 8 && code === 80877103) {
+        this.clientBuffer = this.clientBuffer.subarray(8);
+        return;
+      }
+
+      if (code === 196608 || (len >= 8 && len <= 10000 && this.clientBuffer[0] === 0)) {
+        if (this.clientBuffer.length < len) {
+          return;
+        }
+        this.clientBuffer = this.clientBuffer.subarray(len);
+        this.isStartupDone = true;
+      } else {
+        this.isStartupDone = true;
+      }
     }
 
     while (this.clientBuffer.length >= 5) {

@@ -1,0 +1,118 @@
+name: "QueryGuard - PostgreSQL Performance Gate"
+description: "Zero-code-change PostgreSQL wire-protocol proxy, N+1 query cascade detector, and automated index advisor"
+author: "Adib23704"
+branding:
+  icon: "database"
+  color: "blue"
+
+inputs:
+  command:
+    description: "Test runner command to execute through QueryGuard proxy (e.g. 'pnpm test')"
+    required: true
+  database_url:
+    description: "Target PostgreSQL database connection string"
+    required: false
+    default: "${{ env.DATABASE_URL }}"
+  port:
+    description: "Port to bind local TCP proxy"
+    required: false
+    default: "5433"
+  fail_on_n_plus_one:
+    description: "Fail CI if N+1 query cascades are detected"
+    required: false
+    default: "true"
+  fail_on_seq_scan:
+    description: "Fail CI if high-cost unindexed sequential scans are detected"
+    required: false
+    default: "false"
+  n_plus_one_threshold:
+    description: "Repetitive query execution threshold to flag N+1"
+    required: false
+    default: "5"
+  seq_scan_threshold:
+    description: "Estimated row threshold to flag sequential scans"
+    required: false
+    default: "100"
+  markdown_report:
+    description: "File path to write GitHub PR comment markdown report"
+    required: false
+    default: ".queryguard/report.md"
+  html_report:
+    description: "File path to write standalone HTML waterfall report"
+    required: false
+    default: ".queryguard/report.html"
+  json_report:
+    description: "File path to write JSON analysis export"
+    required: false
+    default: ".queryguard/report.json"
+  github_token:
+    description: "GitHub token for posting PR comments"
+    required: false
+    default: "${{ github.token }}"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run QueryGuard Performance Gate
+      shell: bash
+      env:
+        DATABASE_URL: ${{ inputs.database_url }}
+      run: |
+        FAIL_NPLUSONE=""
+        if [ "${{ inputs.fail_on_n_plus_one }}" = "true" ]; then
+          FAIL_NPLUSONE="--fail-on-n-plus-one"
+        fi
+
+        FAIL_SEQSCAN=""
+        if [ "${{ inputs.fail_on_seq_scan }}" = "true" ]; then
+          FAIL_SEQSCAN="--fail-on-seq-scan"
+        fi
+
+        npx queryguard exec \
+          --port "${{ inputs.port }}" \
+          --db-url "${{ inputs.database_url }}" \
+          $FAIL_NPLUSONE \
+          $FAIL_SEQSCAN \
+          --n-plus-one-threshold "${{ inputs.n_plus_one_threshold }}" \
+          --seq-scan-threshold "${{ inputs.seq_scan_threshold }}" \
+          --markdown-report "${{ inputs.markdown_report }}" \
+          --html-report "${{ inputs.html_report }}" \
+          --json-report "${{ inputs.json_report }}" \
+          -- ${{ inputs.command }}
+
+    - name: Post QueryGuard PR Comment
+      if: always() && github.event_name == 'pull_request' && inputs.github_token != ''
+      uses: actions/github-script@v9
+      with:
+        github-token: ${{ inputs.github_token }}
+        script: |
+          const fs = require('fs');
+          const reportPath = '${{ inputs.markdown_report }}';
+          if (fs.existsSync(reportPath)) {
+            const reportContent = fs.readFileSync(reportPath, 'utf8');
+            const botCommentIdentifier = '## 🛡️ QueryGuard Database Performance Report';
+            
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const existingComment = comments.find(c => c.body.includes(botCommentIdentifier));
+            
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: reportContent,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: reportContent,
+              });
+            }
+          }

@@ -109,7 +109,7 @@ function buildSslRequestMessage(): Buffer {
   return buf;
 }
 
-describe("WireParser — PostgreSQL Wire Protocol Interception", () => {
+describe("WireParser - PostgreSQL Wire Protocol Interception", () => {
   it("intercepts simple query ('Q') and completes on ReadyForQuery ('Z')", () => {
     const traces: QueryTrace[] = [];
     const parser = new WireParser({

@@ -16,8 +16,16 @@
   "files": [
     "dist",
     "bin",
-    "action.yml"
+    "README.md"
   ],
+  "homepage": "https://github.com/Adib23704/QueryGuard#readme",
+  "bugs": {
+    "url": "https://github.com/Adib23704/QueryGuard/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Adib23704/QueryGuard.git"
+  },
   "scripts": {
     "build": "tsup && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",

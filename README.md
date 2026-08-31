@@ -3,7 +3,7 @@
 > **High-performance, zero-code-change PostgreSQL wire-protocol proxy, $N+1$ query cascade detector, sequential table scan analyzer, and automated index advisor for Node.js/TypeScript and CI/CD environments.**
 
 [![CI](https://github.com/Adib23704/QueryGuard/actions/workflows/ci.yml/badge.svg)](https://github.com/Adib23704/QueryGuard/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/queryguard.svg)](https://www.npmjs.com/package/queryguard)
+[![npm version](https://img.shields.io/npm/v/@adib23704/queryguard.svg)](https://www.npmjs.com/package/@adib23704/queryguard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ---
@@ -191,7 +191,7 @@ jobs:
 QueryGuard can also be used as a TypeScript library in custom test harnesses:
 
 ```typescript
-import { ProxyServer, analyzeTraces, renderTerminalReport, renderHtmlReport } from "queryguard";
+import { ProxyServer, analyzeTraces, renderTerminalReport, renderHtmlReport } from "@adib23704/queryguard";
 
 // 1. Start the proxy
 const proxy = new ProxyServer({

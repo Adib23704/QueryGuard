@@ -1,9 +1,12 @@
 {
-  "name": "queryguard",
+  "name": "@adib23704/queryguard",
   "version": "1.0.0",
   "description": "Zero-config PostgreSQL wire-protocol proxy, N+1 query cascade detector, and automated index advisor",
   "type": "module",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Adib23704",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

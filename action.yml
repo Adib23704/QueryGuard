@@ -68,7 +68,7 @@ runs:
           FAIL_SEQSCAN="--fail-on-seq-scan"
         fi
 
-        npx queryguard exec \
+        npx --yes @adib23704/queryguard exec \
           --port "${{ inputs.port }}" \
           --db-url "${{ inputs.database_url }}" \
           $FAIL_NPLUSONE \

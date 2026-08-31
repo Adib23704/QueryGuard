@@ -68,13 +68,14 @@ export function rewritePostgresUrl(rawUrl: string, newHost: string, newPort: num
 export function loadDatabaseUrl(
   explicitUrl?: string,
   cwd: string = process.cwd(),
+  env: NodeJS.ProcessEnv = process.env,
 ): ResolvedDatabaseUrl {
   if (explicitUrl && explicitUrl.trim().length > 0) {
     return { url: explicitUrl.trim(), source: "cli" };
   }
 
-  if (process.env.DATABASE_URL && process.env.DATABASE_URL.trim().length > 0) {
-    return { url: process.env.DATABASE_URL.trim(), source: "env" };
+  if (env.DATABASE_URL && env.DATABASE_URL.trim().length > 0) {
+    return { url: env.DATABASE_URL.trim(), source: "env" };
   }
 
   const envFiles = [".env", ".env.local", ".env.development", ".env.test"];

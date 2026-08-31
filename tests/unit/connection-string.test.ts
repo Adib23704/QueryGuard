@@ -45,12 +45,21 @@ describe("connection-string parser & rewriter", () => {
     const { loadDatabaseUrl } = await import("../../src/utils/connection-string.js");
 
     // 1. Explicit arg has highest precedence
-    const explicit = loadDatabaseUrl("postgres://explicit:5432/db");
+    const explicit = loadDatabaseUrl("postgres://explicit:5432/db", "/non/existent/path", {
+      DATABASE_URL: "postgres://from-env:5432/db",
+    });
     expect(explicit.url).toBe("postgres://explicit:5432/db");
     expect(explicit.source).toBe("cli");
 
-    // 2. Default fallback when no env or file
-    const fallback = loadDatabaseUrl(undefined, "/non/existent/path");
+    // 2. Env variable has second precedence
+    const fromEnv = loadDatabaseUrl(undefined, "/non/existent/path", {
+      DATABASE_URL: "postgres://from-env:5432/db",
+    });
+    expect(fromEnv.url).toBe("postgres://from-env:5432/db");
+    expect(fromEnv.source).toBe("env");
+
+    // 3. Default fallback when no explicit arg, no env, and no file
+    const fallback = loadDatabaseUrl(undefined, "/non/existent/path", {});
     expect(fallback.source).toBe("default");
     expect(fallback.url).toContain("5432");
   });

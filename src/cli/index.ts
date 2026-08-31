@@ -10,7 +10,7 @@ export function parseCliArgs(argv: string[] = process.argv): Command {
     .description(
       "PostgreSQL wire-protocol proxy, N+1 query cascade detector, and automated index advisor",
     )
-    .version("1.0.0");
+    .version("1.0.1");
 
   program
     .command("exec", { isDefault: true })

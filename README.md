@@ -152,7 +152,7 @@ jobs:
       - run: pnpm install
 
       - name: Run QueryGuard Performance Gate
-        uses: Adib23704/QueryGuard@v1.0.0
+        uses: Adib23704/QueryGuard@v1
         env:
           DATABASE_URL: postgres://postgres:password@localhost:5432/app_test
         with:

@@ -40,4 +40,18 @@ describe("connection-string parser & rewriter", () => {
       /Invalid PostgreSQL connection URL/,
     );
   });
+
+  it("loads database URL from explicit arg, env, or dotenv file", async () => {
+    const { loadDatabaseUrl } = await import("../../src/utils/connection-string.js");
+
+    // 1. Explicit arg has highest precedence
+    const explicit = loadDatabaseUrl("postgres://explicit:5432/db");
+    expect(explicit.url).toBe("postgres://explicit:5432/db");
+    expect(explicit.source).toBe("cli");
+
+    // 2. Default fallback when no env or file
+    const fallback = loadDatabaseUrl(undefined, "/non/existent/path");
+    expect(fallback.source).toBe("default");
+    expect(fallback.url).toContain("5432");
+  });
 });

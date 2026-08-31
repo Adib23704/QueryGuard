@@ -6,6 +6,7 @@ import { renderHtmlReport } from "../reporters/html.js";
 import { renderJsonReport } from "../reporters/json.js";
 import { renderMarkdownReport } from "../reporters/markdown.js";
 import { renderTerminalReport } from "../reporters/terminal.js";
+import { loadDatabaseUrl } from "../utils/connection-string.js";
 import { logger } from "../utils/logger.js";
 import { type ExecCommandOptions, evaluateExitCode } from "./exec.js";
 
@@ -45,11 +46,15 @@ export async function analyzeFile(options: AnalyzeCommandOptions): Promise<numbe
   const nPlusOneThreshold = options.nPlusOneThreshold ? Number(options.nPlusOneThreshold) : 5;
   const seqScanRowThreshold = options.seqScanThreshold ? Number(options.seqScanThreshold) : 100;
 
+  const resolved = loadDatabaseUrl(typeof options.dbUrl === "string" ? options.dbUrl : undefined);
+
   const result = await analyzeTraces(traces, sessions, {
     nPlusOneThreshold,
     seqScanRowThreshold,
-    dbUrl: options.dbUrl || process.env.DATABASE_URL,
-    enableExplain: Boolean(options.dbUrl || process.env.DATABASE_URL),
+    dbUrl: resolved.url,
+    enableExplain: Boolean(
+      options.dbUrl || process.env.DATABASE_URL || resolved.source === "dotenv",
+    ),
   });
 
   if (!options.silent) {

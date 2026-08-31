@@ -1,3 +1,6 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
+
 export interface ParsedPostgresUrl {
   protocol: "postgres:" | "postgresql:";
   user: string;
@@ -8,6 +11,11 @@ export interface ParsedPostgresUrl {
   searchPath?: string | undefined;
   sslMode?: string | undefined;
   rawParams: URLSearchParams;
+}
+
+export interface ResolvedDatabaseUrl {
+  url: string;
+  source: "cli" | "env" | "dotenv" | "default";
 }
 
 export function parsePostgresUrl(rawUrl: string): ParsedPostgresUrl {
@@ -55,4 +63,38 @@ export function rewritePostgresUrl(rawUrl: string, newHost: string, newPort: num
   const dbPart = parsed.database ? `/${encodeURIComponent(parsed.database)}` : "";
 
   return `${parsed.protocol}//${authPart}${newHost}:${newPort}${dbPart}${search}`;
+}
+
+export function loadDatabaseUrl(
+  explicitUrl?: string,
+  cwd: string = process.cwd(),
+): ResolvedDatabaseUrl {
+  if (explicitUrl && explicitUrl.trim().length > 0) {
+    return { url: explicitUrl.trim(), source: "cli" };
+  }
+
+  if (process.env.DATABASE_URL && process.env.DATABASE_URL.trim().length > 0) {
+    return { url: process.env.DATABASE_URL.trim(), source: "env" };
+  }
+
+  const envFiles = [".env", ".env.local", ".env.development", ".env.test"];
+  for (const file of envFiles) {
+    const fullPath = path.resolve(cwd, file);
+    if (fs.existsSync(fullPath)) {
+      try {
+        const content = fs.readFileSync(fullPath, "utf8");
+        const match = content.match(/^\s*DATABASE_URL\s*=\s*(?:["']?)([^"'\r\n]+)(?:["']?)/m);
+        if (match?.[1] && match[1].trim().length > 0) {
+          return { url: match[1].trim(), source: "dotenv" };
+        }
+      } catch {
+        // Skip unreadable files
+      }
+    }
+  }
+
+  return {
+    url: "postgres://postgres:postgres@localhost:5432/postgres",
+    source: "default",
+  };
 }

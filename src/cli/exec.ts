@@ -8,7 +8,11 @@ import { renderHtmlReport } from "../reporters/html.js";
 import { renderJsonReport } from "../reporters/json.js";
 import { renderMarkdownReport } from "../reporters/markdown.js";
 import { renderTerminalReport } from "../reporters/terminal.js";
-import { parsePostgresUrl, rewritePostgresUrl } from "../utils/connection-string.js";
+import {
+  loadDatabaseUrl,
+  parsePostgresUrl,
+  rewritePostgresUrl,
+} from "../utils/connection-string.js";
 import { logger } from "../utils/logger.js";
 
 export interface ExecCommandOptions {
@@ -54,10 +58,8 @@ export async function executeCommand(
     return 1;
   }
 
-  const rawDbUrl =
-    options.dbUrl ||
-    process.env.DATABASE_URL ||
-    "postgres://postgres:postgres@localhost:5432/postgres";
+  const resolved = loadDatabaseUrl(typeof options.dbUrl === "string" ? options.dbUrl : undefined);
+  const rawDbUrl = resolved.url;
 
   let targetHost = "localhost";
   let targetPort = 5432;
@@ -66,6 +68,11 @@ export async function executeCommand(
     const parsed = parsePostgresUrl(rawDbUrl);
     targetHost = parsed.host;
     targetPort = parsed.port;
+    if (resolved.source === "dotenv") {
+      logger.info(`Discovered DATABASE_URL from .env -> Target: ${targetHost}:${targetPort}`);
+    } else if (resolved.source === "cli" || resolved.source === "env") {
+      logger.info(`Target database: ${targetHost}:${targetPort}`);
+    }
   } catch (err) {
     logger.warn(`Could not parse database URL: ${err}. Defaulting proxy target to localhost:5432.`);
   }

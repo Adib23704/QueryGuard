@@ -7,7 +7,7 @@ export interface JsonReportExport extends AnalysisResult {
 
 export function renderJsonReport(result: AnalysisResult): string {
   const exportPayload: JsonReportExport = {
-    version: "1.0.2",
+    version: "1.0.3",
     generatedAt: new Date().toISOString(),
     ...result,
   };

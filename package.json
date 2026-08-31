@@ -8,6 +8,33 @@
     "access": "public"
   },
   "author": "Adib23704",
+  "keywords": [
+    "postgresql",
+    "postgres",
+    "database",
+    "performance",
+    "n-plus-one",
+    "n1",
+    "index-advisor",
+    "sql",
+    "proxy",
+    "wire-protocol",
+    "prisma",
+    "drizzle-orm",
+    "typeorm",
+    "kysely",
+    "explain",
+    "ci-cd",
+    "github-action"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Adib23704/QueryGuard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Adib23704/QueryGuard/issues"
+  },
+  "homepage": "https://github.com/Adib23704/QueryGuard#readme",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
@@ -18,14 +45,6 @@
     "bin",
     "README.md"
   ],
-  "homepage": "https://github.com/Adib23704/QueryGuard#readme",
-  "bugs": {
-    "url": "https://github.com/Adib23704/QueryGuard/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Adib23704/QueryGuard.git"
-  },
   "scripts": {
     "build": "tsup && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
